@@ -1,1 +1,2 @@
-# juice_team2
+# JDice Project
+Repository khởi tạo cho nhóm team2
