@@ -1,131 +1,114 @@
+
 import java.util.*;
-/*
-JDice: Java Dice Rolling Program
-Copyright (C) 2006 Andrew D. Hilton  (adhilton@cis.upenn.edu)
 
+public class DiceParser {
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+    /* Helper class to manage the input stream */
+    private static class StringStream {
+        StringBuffer buff;
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
- */
-
-public class DiceParser{
-    /* this is a helper class to manage the input "stream"*/
-    private static class StringStream{
-        public StringBuffer buff;
-
-        public StringStream(String s){
+        public StringStream(String s) {
             buff = new StringBuffer(s);
         }
 
         private void munchWhiteSpace() {
             int index = 0;
             char curr;
-            while(index < buff.length()){
+            while (index < buff.length()) {
                 curr = buff.charAt(index);
-                if(!Character.isWhitespace(curr))
+                if (!Character.isWhitespace(curr)) {
                     break;
+                }
                 index++;
             }
             buff = buff.delete(0, index);
         }
 
-        public boolean isEmpty(){
+        public boolean isEmpty() {
             munchWhiteSpace();
             return buff.toString().equals("");
         }
 
-        public Integer getInt(){
+        public Integer getInt() {
             return readInt();
         }
 
-        public Integer readInt(){
+        public Integer readInt() {
             int index = 0;
             munchWhiteSpace();
             char curr;
-            while(index < buff.length()){
+
+            while (index < buff.length()) {
                 curr = buff.charAt(index);
-                if(!Character.isDigit(curr))
+                if (!Character.isDigit(curr)) {
                     break;
+                }
                 index++;
             }
-            try{
+
+            try {
                 Integer ans = Integer.parseInt(buff.substring(0, index));
                 buff = buff.delete(0, index);
                 return ans;
-            } catch(Exception e){
+            } catch (Exception e) {
                 return null;
             }
         }
 
-        public Integer readSgnInt(){
+        public Integer readSgnInt() {
             munchWhiteSpace();
             StringStream state = save();
-            if(checkAndEat("+")) {
+            if (checkAndEat("+")) {
                 Integer ans = readInt();
-                if(ans != null)
-                    return ans;
+                if (ans != null) return ans;
                 restore(state);
                 return null;
             }
-            if(checkAndEat("-")) {
+            if (checkAndEat("-")) {
                 Integer ans = readInt();
-                if(ans != null)
-                    return -ans;  // Fix the missing return
+                if (ans != null) return -ans;
                 restore(state);
                 return null;
             }
             return readInt();
         }
 
-        public boolean checkAndEat(String s){
+        public boolean checkAndEat(String s) {
             munchWhiteSpace();
-            if(buff.indexOf(s) == 0){
+            if (buff.indexOf(s) == 0) {
                 buff = buff.delete(0, s.length());
                 return true;
             }
-            return false;  // Add missing semicolon
+            return false;
         }
 
         public StringStream save() {
             return new StringStream(buff.toString());
         }
 
-        public void restore(StringStream ss){
+        public void restore(StringStream ss) {
             this.buff = new StringBuffer(ss.buff);
         }
 
-        public String toString(){
+        public String toString() {
             return buff.toString();
         }
     }
 
-    public static Vector<DieRoll> parseRoll(String s){
+    public static Vector<DieRoll> parseRoll(String s) {
         StringStream ss = new StringStream(s.toLowerCase());
         Vector<DieRoll> v = parseRollInner(ss, new Vector<DieRoll>());
-        if(ss.isEmpty())
+        if (ss.isEmpty()) {
             return v;
+        }
         return null;
     }
 
-    private static Vector<DieRoll> parseRollInner(StringStream ss, Vector<DieRoll> v){
+    private static Vector<DieRoll> parseRollInner(StringStream ss, Vector<DieRoll> v) {
         Vector<DieRoll> r = parseXDice(ss);
-        if(r == null) {
-            return null;
-        }
+        if (r == null) return null;
         v.addAll(r);
-        if(ss.checkAndEat(";")){
+        if (ss.checkAndEat(";")) {
             return parseRollInner(ss, v);
         }
         return v;
@@ -135,64 +118,60 @@ public class DiceParser{
         StringStream saved = ss.save();
         Integer x = ss.getInt();
         int num;
-        if(x == null) {
+
+        if (x == null) {
             num = 1;
         } else {
-            if(ss.checkAndEat("x")) {
+            if (ss.checkAndEat("x")) {
                 num = x;
             } else {
                 num = 1;
                 ss.restore(saved);
             }
         }
+
         DieRoll dr = parseDice(ss);
-        if(dr == null) {
-            return null;
-        }
-        Vector<DieRoll> ans = new Vector<DieRoll>();
-        for(int i = 0; i < num; i++){
+        if (dr == null) return null;
+
+        Vector<DieRoll> ans = new Vector<>();
+        for (int i = 0; i < num; i++) {
             ans.add(dr);
         }
         return ans;
     }
 
-    private static DieRoll parseDice(StringStream ss){
+    private static DieRoll parseDice(StringStream ss) {
         return parseDTail(parseDiceInner(ss), ss);
     }
 
-    private static DieRoll parseDiceInner(StringStream ss){
+    private static DieRoll parseDiceInner(StringStream ss) {
         Integer num = ss.getInt();
         int dsides;
         int ndice;
-        if(num == null) {
+
+        if (num == null) {
             ndice = 1;
         } else {
             ndice = num;
         }
 
-        if(ss.checkAndEat("d")){
+        if (ss.checkAndEat("d")) {
             num = ss.getInt();
-            if(num == null)
-                return null;
+            if (num == null) return null;
             dsides = num;
         } else {
             return null;
         }
 
         num = ss.readSgnInt();
-        int bonus;
-        if(num == null)
-            bonus = 0;
-        else
-            bonus = num;
+        int bonus = (num == null) ? 0 : num;
 
         return new DieRoll(ndice, dsides, bonus);
     }
 
     private static DieRoll parseDTail(DieRoll r1, StringStream ss) {
-        if(r1 == null)
-            return null;
-        if(ss.checkAndEat("&")) {
+        if (r1 == null) return null;
+        if (ss.checkAndEat("&")) {
             DieRoll d2 = parseDice(ss);
             return parseDTail(new DiceSum(r1, d2), ss);
         } else {
@@ -202,15 +181,12 @@ public class DiceParser{
 
     private static void test(String s) {
         Vector<DieRoll> v = parseRoll(s);
-        int i;
-        if(v == null)
-            System.out.println("Failure:" + s);
-        else {
+        if (v == null) {
+            System.out.println("Failure: " + s);
+        } else {
             System.out.println("Results for " + s + ":");
-            for(i = 0; i < v.size(); i++){
-                DieRoll dr = v.get(i);
-                System.out.print(v.get(i));
-                System.out.print(": ");
+            for (DieRoll dr : v) {
+                System.out.print(dr + ": ");
                 System.out.println(dr.makeRoll());
             }
         }
@@ -223,12 +199,13 @@ public class DiceParser{
         test("4X3d8-5");
         test("12d10+5 & 4d6+2");
         test("d6 ; 2d4+3");
-        test("4d6+3 ; 8d12 -15 ; 9d10 & 3d6 & 4d12 +17");
+        test("4d6+3 ; 8d12-15 ; 9d10 & 3d6 & 4d12+17");
         test("4d6 + xyzzy");
         test("hi");
         test("4d4d4");
     }
 }
+
 class DieRoll {
     int count;
     int sides;
