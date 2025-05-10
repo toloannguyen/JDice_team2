@@ -1,5 +1,7 @@
+
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+
 /*
 JDice: Java Dice Rolling Program
 Copyright (C) 2006 Andrew D. Hilton  (adhilton@cis.upenn.edu)
@@ -21,44 +23,49 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
  */
 
-
 public class DieRoll {
+
     private int ndice;
     private int nsides;
     private int bonus;
     private static Random rnd;
-    static{
-	rnd=new Random();
+
+    static {
+        rnd = new Random();
     }
+
     /**
-        Constructor kiểm tra dữ liệu đầu vào hợp lệ.
-         ndice Số xúc xắc (phải lớn hơn 0).
-         nsides Số mặt của xúc xắc (phải lớn hơn 0).
-         bonus Giá trị cộng thêm hoặc trừ đi kết quả tổng.
-      @throws IllegalArgumentException Nếu số xúc xắc hoặc số mặt không hợp lệ.
+     * Constructor kiểm tra dữ liệu đầu vào hợp lệ. ndice Số xúc xắc (phải lớn
+     * hơn 0). nsides Số mặt của xúc xắc (phải lớn hơn 0). bonus Giá trị cộng
+     * thêm hoặc trừ đi kết quả tổng.
+     *
+     * @throws IllegalArgumentException Nếu số xúc xắc hoặc số mặt không hợp lệ.
      */
 
-    public DieRoll(int ndice, int nsides,int bonus) {
-        if(ndice<=0||nsides<=0){
+    public DieRoll(int ndice, int nsides, int bonus) {
+        if (ndice <= 0 || nsides <= 0) {
             throw new IllegalArgumentException("So xuc xac va so mat phai lon hon 0");
         }
-	this.ndice=ndice;
-	this.nsides=nsides;
-	this.bonus=bonus;
+        this.ndice = ndice;
+        this.nsides = nsides;
+        this.bonus = bonus;
     }
+
     /**
-      Thực hiện tung xúc xắc và trả về kết quả.
-     return Đối tượng RollResult chứa các giá trị xúc xắc.
+     * Thực hiện tung xúc xắc và trả về kết quả. return Đối tượng RollResult
+     * chứa các giá trị xúc xắc.
      */
 
     public RollResult makeRoll() {
-    RollResult r=new RollResult(bonus);
-    ThreadLocalRandom.current().ints(ndice, 1, nsides + 1).forEach(r::addResult);
-    return r;
+        RollResult r = new RollResult(bonus);
+        ThreadLocalRandom.current().ints(ndice, 1, nsides + 1).forEach(r::addResult);
+        return r;
     }
+
     /**
-     Tạo chuỗi mô tả cú pháp tung xúc xắc.
-     @return Chuỗi biểu diễn số xúc xắc, số mặt và bonus.
+     * Tạo chuỗi mô tả cú pháp tung xúc xắc.
+     *
+     * @return Chuỗi biểu diễn số xúc xắc, số mặt và bonus.
      */
 
     @Override
