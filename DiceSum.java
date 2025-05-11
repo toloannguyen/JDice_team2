@@ -45,6 +45,8 @@
  
      // Ham tien ich tra ve tong ket qua xuc xac (khong in ket qua chi tra ve so).
      public int getSumValue() {
-         return new RollResult(r1.makeRoll().getResult() + r2.makeRoll().getResult());
+
+         return r1.makeRoll().getResult() + r2.makeRoll().getResult();
      }
  }
+ 
