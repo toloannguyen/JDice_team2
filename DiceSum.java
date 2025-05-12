@@ -40,7 +40,7 @@
  
      // Tra ve xau chuoi dai dien cho hai lan xuc xac.
      public String toString() {
-         return r1.toString() + " & " + r2.toString();
+         return r1.makeRoll().compose(r2.makeRoll());
      }
  
      // Ham tien ich tra ve tong ket qua xuc xac (khong in ket qua chi tra ve so).
